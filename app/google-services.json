@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "91488656548",
+    "project_id": "calendar-sample-app-81903",
+    "storage_bucket": "calendar-sample-app-81903.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:91488656548:android:64bf8aee1accd7cb475a31",
+        "android_client_info": {
+          "package_name": "com.applandeo.calendarsampleapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaJIowm7upZo9I1phuCc9nwx-L4Mmk_hE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
