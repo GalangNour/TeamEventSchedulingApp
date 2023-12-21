@@ -18,53 +18,55 @@ import com.applandeo.calendarsampleapp.R
 /**
  *Utils method to create drawable containing text
  */
-fun Context.getDrawableText(text: String, typeface: Typeface?, color: Int, size: Int): Drawable {
-    val bitmap = Bitmap.createBitmap(48, 48, Bitmap.Config.ARGB_8888)
+object CalendarUtils {
+    fun Context.getDrawableText(text: String, typeface: Typeface?, color: Int, size: Int): Drawable {
+        val bitmap = Bitmap.createBitmap(48, 48, Bitmap.Config.ARGB_8888)
 
-    val canvas = Canvas(bitmap)
-    val scale = this.resources.displayMetrics.density
+        val canvas = Canvas(bitmap)
+        val scale = this.resources.displayMetrics.density
 
-    val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        this.typeface = typeface ?: Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-        this.color = ContextCompat.getColor(this@getDrawableText, color)
-        this.textSize = (size * scale).toInt().toFloat()
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            this.typeface = typeface ?: Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            this.color = ContextCompat.getColor(this@getDrawableText, color)
+            this.textSize = (size * scale).toInt().toFloat()
+        }
+
+        val bounds = Rect()
+        paint.getTextBounds(text, 0, text.length, bounds)
+        val x = (bitmap.width - bounds.width()) / 2
+        val y = (bitmap.height + bounds.height()) / 2
+        canvas.drawText(text, x.toFloat(), y.toFloat(), paint)
+
+        return BitmapDrawable(this.resources, bitmap)
     }
 
-    val bounds = Rect()
-    paint.getTextBounds(text, 0, text.length, bounds)
-    val x = (bitmap.width - bounds.width()) / 2
-    val y = (bitmap.height + bounds.height()) / 2
-    canvas.drawText(text, x.toFloat(), y.toFloat(), paint)
+    /**
+     * This method returns a list of calendar objects between two dates
+     * @param this representing a first selected date
+     * @param toCalendar Calendar representing a last selected date
+     * @return List of selected dates between two dates
+     */
+    fun Calendar.getDatesRange(toCalendar: Calendar): List<Calendar> =
+        if (toCalendar.before(this)) {
+            getCalendarsBetweenDates(toCalendar.time, this.time)
+        } else {
+            getCalendarsBetweenDates(this.time, toCalendar.time)
+        }
 
-    return BitmapDrawable(this.resources, bitmap)
-}
+    private fun getCalendarsBetweenDates(dateFrom: Date, dateTo: Date): List<Calendar> {
+        val calendars = mutableListOf<Calendar>()
 
-/**
- * This method returns a list of calendar objects between two dates
- * @param this representing a first selected date
- * @param toCalendar Calendar representing a last selected date
- * @return List of selected dates between two dates
- */
-fun Calendar.getDatesRange(toCalendar: Calendar): List<Calendar> =
-    if (toCalendar.before(this)) {
-        getCalendarsBetweenDates(toCalendar.time, this.time)
-    } else {
-        getCalendarsBetweenDates(this.time, toCalendar.time)
+        val calendarFrom = Calendar.getInstance().apply { time = dateFrom }
+        val calendarTo = Calendar.getInstance().apply { time = dateTo }
+
+        val daysBetweenDates = TimeUnit.MILLISECONDS.toDays(
+            calendarTo.timeInMillis - calendarFrom.timeInMillis)
+
+        (0 until daysBetweenDates).forEach {
+            val calendar = calendarFrom.clone() as Calendar
+            calendar.add(Calendar.DATE, it.toInt())
+            calendars.add(calendar)
+        }
+        return calendars
     }
-
-private fun getCalendarsBetweenDates(dateFrom: Date, dateTo: Date): List<Calendar> {
-    val calendars = mutableListOf<Calendar>()
-
-    val calendarFrom = Calendar.getInstance().apply { time = dateFrom }
-    val calendarTo = Calendar.getInstance().apply { time = dateTo }
-
-    val daysBetweenDates = TimeUnit.MILLISECONDS.toDays(
-        calendarTo.timeInMillis - calendarFrom.timeInMillis)
-
-    (0 until daysBetweenDates).forEach {
-        val calendar = calendarFrom.clone() as Calendar
-        calendar.add(Calendar.DATE, it.toInt())
-        calendars.add(calendar)
-    }
-    return calendars
 }
