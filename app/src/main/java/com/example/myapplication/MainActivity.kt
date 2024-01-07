@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.applandeo.calendarsampleapp.databinding.ActivityMainBinding
 import com.applandeo.calendarsampleapp.extensions.*
 import com.applandeo.calendarsampleapp.extensions.getDot
+import com.applandeo.materialcalendarview.CalendarDay
 import com.applandeo.materialcalendarview.CalendarView
 import com.applandeo.materialcalendarview.EventDay
 import com.applandeo.materialcalendarview.getDatesRange
@@ -41,7 +42,7 @@ class MainActivity : AppCompatActivity(), OnDayClickListener {
         binding.calendarView.setOnDayClickListener(this)
         binding.calendarView.setCalendarDayLayout(R.layout.activity_custom_calendar_day_row)
 
-        handleActivityResult(null)
+        handleActivityResult()
 
     }
 
@@ -58,11 +59,10 @@ class MainActivity : AppCompatActivity(), OnDayClickListener {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK && requestCode == RESULT_CODE) {
-            handleActivityResult(data)
+            handleActivityResult()
         }
     }
-    private fun handleActivityResult(data: Intent?) {
-        val note = data?.getStringExtra(NOTE_EXTRA) ?: return
+    private fun handleActivityResult() {
 
         // Declare dateRange outside of the callback scope
         var dateRange: List<Calendar>? = null
@@ -95,8 +95,18 @@ class MainActivity : AppCompatActivity(), OnDayClickListener {
 
                 // Check if dateRange is not null before using it
                 dateRange?.let { range ->
-                    binding.calendarView.setHighlightedDays(range)
+                    val calendarDays = mutableListOf<CalendarDay>()
+
+                    for (startDate in range) {
+                        val calendarDay = CalendarDay(startDate)
+                        calendarDay.setDrawable(getDot()) // Use the getDot() function to set the dot drawable
+                        calendarDays.add(calendarDay)
+                    }
+
+                    // Add the list of calendar days with dots to the calendar view
+                    binding.calendarView.setCalendarDays(calendarDays)
                 }
+
             },
             onError = { error ->
                 // Handle the error here if needed
