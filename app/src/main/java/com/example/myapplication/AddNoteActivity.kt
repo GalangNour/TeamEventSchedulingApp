@@ -22,6 +22,8 @@ class AddNoteActivity : AppCompatActivity(), OnSelectDateListener {
     private lateinit var binding: ActivityAddNoteBinding
     private val selectedCalendars = mutableListOf<Calendar>()
     private lateinit var viewModelEventNote : EventNoteViewModel
+    private var selectedColorHex: String? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,13 +89,16 @@ class AddNoteActivity : AppCompatActivity(), OnSelectDateListener {
         val eventName = binding.eventNameEditText.text.toString()
         val eventDescription = binding.eventDescriptionEditText.text.toString()
 
-        // Create EventNote object with the selected date range
+        // Check if a color was selected, or use a default color if none is selected
+        val selectedColor = selectedColorHex ?: "#FFFFFF"
+
+        // Create EventNote object with the selected date range and color
         val newEventNote = EventNote(
             nama = eventName,
             deskripsi = eventDescription,
-            team = null,
-            date_start = dateRange.first().time, // Start date
-            date_end = dateRange.last().time    // End date
+            team = selectedColor,
+            date_start = dateRange.first().time,
+            date_end = dateRange.last().time
         )
 
         viewModelEventNote.addEvent(newEventNote) { isSuccess ->

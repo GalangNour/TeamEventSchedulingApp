@@ -1,23 +1,15 @@
-@file:JvmName("CalendarUtils")
-
-package com.applandeo.calendarsampleapp.extensions
-
 import android.content.Context
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import java.util.*
 import java.util.concurrent.TimeUnit
-import com.applandeo.calendarsampleapp.R
 
-/**
- * Created by Applandeo Team.
- */
-
-/**
- *Utils method to create drawable containing text
- */
 object CalendarUtils {
     fun Context.getDrawableText(text: String, typeface: Typeface?, color: Int, size: Int): Drawable {
         val bitmap = Bitmap.createBitmap(48, 48, Bitmap.Config.ARGB_8888)
@@ -26,7 +18,7 @@ object CalendarUtils {
         val scale = this.resources.displayMetrics.density
 
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            this.typeface = typeface ?: Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            this.typeface = typeface ?: Typeface.DEFAULT_BOLD
             this.color = ContextCompat.getColor(this@getDrawableText, color)
             this.textSize = (size * scale).toInt().toFloat()
         }
@@ -42,7 +34,6 @@ object CalendarUtils {
 
     /**
      * This method returns a list of calendar objects between two dates
-     * @param this representing a first selected date
      * @param toCalendar Calendar representing a last selected date
      * @return List of selected dates between two dates
      */
@@ -69,4 +60,5 @@ object CalendarUtils {
         }
         return calendars
     }
+
 }

@@ -6,10 +6,10 @@ import java.util.Date
 data class EventNote(
     val nama: String = "",
     val deskripsi: String = "",
-    val team: List<String>? = null,
+    val team: String = "",
     val date_start: Date,
     val date_end: Date
 ) : Parcelable {
     // Add a no-argument constructor for Firebase deserialization
-    constructor() : this("", "", null, Date(), Date())
+    constructor() : this("", "", "", Date(), Date())
 }

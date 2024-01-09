@@ -1,24 +1,21 @@
 package com.applandeo.calendarsampleapp
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.DrawableUtils
 import androidx.lifecycle.ViewModelProvider
 import com.applandeo.calendarsampleapp.databinding.ActivityMainBinding
-import com.applandeo.calendarsampleapp.extensions.*
 import com.applandeo.calendarsampleapp.extensions.getDot
-import com.applandeo.materialcalendarview.CalendarDay
 import com.applandeo.materialcalendarview.CalendarView
 import com.applandeo.materialcalendarview.EventDay
-import com.applandeo.materialcalendarview.getDatesRange
-import com.applandeo.materialcalendarview.builders.DatePickerBuilder
+import com.applandeo.materialcalendarview.getDrawableText
 import com.applandeo.materialcalendarview.listeners.OnDayClickListener
 import com.applandeo.materialcalendarview.listeners.OnSelectDateListener
-
 import com.example.myapplication.AddNoteActivity
 import com.example.myapplication.EventNoteViewModel
 import com.example.myapplication.NotePreviewActivity
-import java.io.Serializable
 import java.util.Calendar
 
 class MainActivity : AppCompatActivity(), OnDayClickListener {
@@ -65,46 +62,78 @@ class MainActivity : AppCompatActivity(), OnDayClickListener {
     private fun handleActivityResult() {
 
         // Declare dateRange outside of the callback scope
-        var dateRange: List<Calendar>? = null
+        var dateRange: List<Calendar>?
+        val defaultColor = Color.BLACK
 
         // Fetch EventNotes from the database
         viewModelEventNote.getAllEventNotes(
             onDataReceived = { eventNotes ->
+                val events = mutableListOf<EventDay>()
                 val dateRangeList = mutableListOf<Pair<Calendar, Calendar>>()
 
                 // Iterate through the retrieved EventNotes
                 for (eventNote in eventNotes) {
                     // Convert date_start and date_end to Calendar instances
-                    val startDate = Calendar.getInstance()
-                    startDate.time = eventNote.date_start
-                    val endDate = Calendar.getInstance()
-                    endDate.time = eventNote.date_end
+                    val startDate = Calendar.getInstance().apply {
+                        time = eventNote.date_start
+                    }
+
+                    val endDate = Calendar.getInstance().apply {
+                        time = eventNote.date_end
+                    }
+                    val colorHex = eventNote.team
+                    val color = try {
+                        Color.parseColor(colorHex)
+                    } catch (e: IllegalArgumentException) {
+                        // Handle the case when the colorHex is not a valid color format
+                        // You can set a default color or take appropriate action
+                        Color.BLACK // Default color
+                    }
+                    val title = eventNote.nama
+
+
+                    val datesInRange = mutableListOf<Calendar>()
+                    var currentDate = startDate.clone() as Calendar
+
+                    while (currentDate <= endDate) {
+                        datesInRange.add(currentDate.clone() as Calendar)
+                        currentDate.add(Calendar.DATE, 1)
+                    }
+
+                    for (date in datesInRange) {
+                        events.add(EventDay(date, getDot())) // Add a dot for each date in the range
+                    }
 
                     // Add the pair of start and end dates to the list
                     dateRangeList.add(startDate to endDate)
                 }
 
+
                 // Process dateRangeList as needed
                 // ...
 
-                // Set dateRange to the processed list
-                dateRange = dateRangeList.map { it.first } // For example, use the start dates
+                // Set dateRange to the processed list of date pairs (start and end dates)
+                dateRange = dateRangeList.flatMap { datePair ->
+                    val startDate = datePair.first
+                    val endDate = datePair.second
+                    val datesInRange = mutableListOf<Calendar>()
+
+                    var currentDate = startDate.clone() as Calendar
+                    while (currentDate <= endDate) {
+                        datesInRange.add(currentDate.clone() as Calendar)
+                        currentDate.add(Calendar.DATE, 1)
+                    }
+
+                    datesInRange
+                }
 
                 // Rest of your code to create dateRange and update the calendar
-                binding.calendarView.setEvents(notes.keys.toList())
 
                 // Check if dateRange is not null before using it
                 dateRange?.let { range ->
-                    val calendarDays = mutableListOf<CalendarDay>()
-
-                    for (startDate in range) {
-                        val calendarDay = CalendarDay(startDate)
-                        calendarDay.setDrawable(getDot()) // Use the getDot() function to set the dot drawable
-                        calendarDays.add(calendarDay)
-                    }
-
-                    // Add the list of calendar days with dots to the calendar view
-                    binding.calendarView.setCalendarDays(calendarDays)
+                    binding.calendarView.setHighlightedDays(range)
+                    binding.calendarView.setEvents(events)
+//                    binding.calendarView.setEvents(notes.keys.toList())
                 }
 
             },

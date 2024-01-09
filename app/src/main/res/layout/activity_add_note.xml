@@ -53,14 +53,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Select Team"
+        android:hint="Select Color"
         app:layout_constraintTop_toBottomOf="@id/eventDescriptionInputLayout">
 
-        <AutoCompleteTextView
-            android:id="@+id/teamAutoCompleteTextView"
+        <Spinner
+            android:id="@+id/colorSpinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:entries="@array/color_options"
+            android:spinnerMode="dropdown" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Button to Pick Date -->
