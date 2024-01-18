@@ -1,18 +1,20 @@
 package com.applandeo.calendarsampleapp
 
 import android.content.Intent
+import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Typeface
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.DrawableUtils
 import androidx.lifecycle.ViewModelProvider
 import com.applandeo.calendarsampleapp.databinding.ActivityMainBinding
-import com.applandeo.calendarsampleapp.extensions.getDot
-import com.applandeo.materialcalendarview.CalendarView
 import com.applandeo.materialcalendarview.EventDay
-import com.applandeo.materialcalendarview.getDrawableText
 import com.applandeo.materialcalendarview.listeners.OnDayClickListener
-import com.applandeo.materialcalendarview.listeners.OnSelectDateListener
 import com.example.myapplication.AddNoteActivity
 import com.example.myapplication.EventNoteViewModel
 import com.example.myapplication.NotePreviewActivity
@@ -63,7 +65,7 @@ class MainActivity : AppCompatActivity(), OnDayClickListener {
 
         // Declare dateRange outside of the callback scope
         var dateRange: List<Calendar>?
-        val defaultColor = Color.BLACK
+        val defaultColor = Color.GREEN
 
         // Fetch EventNotes from the database
         viewModelEventNote.getAllEventNotes(
@@ -73,6 +75,7 @@ class MainActivity : AppCompatActivity(), OnDayClickListener {
 
                 // Iterate through the retrieved EventNotes
                 for (eventNote in eventNotes) {
+
                     // Convert date_start and date_end to Calendar instances
                     val startDate = Calendar.getInstance().apply {
                         time = eventNote.date_start
@@ -101,10 +104,16 @@ class MainActivity : AppCompatActivity(), OnDayClickListener {
                     }
 
                     for (date in datesInRange) {
-                        events.add(EventDay(date, getDot())) // Add a dot for each date in the range
-                    }
+                        // Use CalendarUtils.getDrawableText to create a Drawable with text
+                        val textDrawable = getDrawableText(
+                            title, // Use the title (eventNote.nama) as text
+                            Typeface.DEFAULT, // You can customize the typeface if needed
+                            defaultColor, // Use the color obtained from eventNote.team
+                            20f // Specify the text size
+                        )
 
-                    // Add the pair of start and end dates to the list
+                        events.add(EventDay(date, textDrawable)) // Add the Drawable with text for each date in the range
+                    }                    // Add the pair of start and end dates to the list
                     dateRangeList.add(startDate to endDate)
                 }
 
@@ -150,4 +159,28 @@ class MainActivity : AppCompatActivity(), OnDayClickListener {
         const val NOTE_EXTRA = "note"
         const val RESULT_CODE = 8
     }
+    fun getDrawableText(text: String, typeface: Typeface, textColor: Int, textSize: Float): Drawable {
+        val paint = Paint().apply {
+            this.typeface = typeface
+            color = textColor
+            this.textSize = textSize
+            isAntiAlias = true
+            textAlign = Paint.Align.CENTER
+        }
+
+        val baseline = -paint.ascent()
+        val width = paint.measureText(text).toInt()
+        val height = (baseline + paint.descent()).toInt()
+
+        val drawable = BitmapDrawable(
+            Resources.getSystem(),
+            Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        )
+
+        val canvas = Canvas(drawable.bitmap)
+        canvas.drawText(text, (width / 2).toFloat(), baseline, paint)
+
+        return drawable
+    }
+
 }
